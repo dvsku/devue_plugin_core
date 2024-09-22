@@ -1,9 +1,9 @@
-#include "image_serial.hpp"
-#include "util_string.hpp"
+#include "devue_sdk/serial/serial_image.hpp"
+#include "devue_sdk/utilities/util_string.hpp"
 
 #include <json/json.hpp>
 
-void devue::sdk::encode_image(devue_image& image, std::vector<uint8_t>& buffer) {
+void devue::sdk::encode(devue_image& image, std::vector<uint8_t>& buffer) {
     nlohmann::ordered_json json;
 
     try {
@@ -22,7 +22,7 @@ void devue::sdk::encode_image(devue_image& image, std::vector<uint8_t>& buffer) 
     }
 }
 
-void devue::sdk::decode_image(devue_image& image, uint8_t* dst, uint64_t size) {
+void devue::sdk::decode(devue_image& image, uint8_t* dst, uint64_t size) {
     nlohmann::ordered_json json;
 
     try {

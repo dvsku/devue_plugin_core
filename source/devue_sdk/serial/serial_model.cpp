@@ -1,9 +1,9 @@
-#include "model_serial.hpp"
-#include "util_string.hpp"
+#include "devue_sdk/serial/serial_model.hpp"
+#include "devue_sdk/utilities/util_string.hpp"
 
 #include <json/json.hpp>
 
-void devue::sdk::encode_models(devue_model_col& models, std::vector<uint8_t>& buffer) {
+void devue::sdk::encode(devue_model_col& models, std::vector<uint8_t>& buffer) {
     nlohmann::ordered_json json;
 
     try {
@@ -75,7 +75,7 @@ void devue::sdk::encode_models(devue_model_col& models, std::vector<uint8_t>& bu
     }
 }
 
-void devue::sdk::decode_models(devue_model_col& models, uint8_t* dst, uint64_t size) {
+void devue::sdk::decode(devue_model_col& models, uint8_t* dst, uint64_t size) {
     nlohmann::ordered_json json;
 
     try {
