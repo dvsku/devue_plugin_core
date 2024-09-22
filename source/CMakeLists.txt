@@ -3,7 +3,6 @@
 
 ADD_LIBRARY(devue_sdk STATIC
     "devue_sdk/plugin/devue_plugin_base.cpp"
-    "devue_sdk/plugin/devue_plugin.cpp"
 )
 
 TARGET_COMPILE_DEFINITIONS(devue_sdk PUBLIC -DGLM_ENABLE_EXPERIMENTAL)
