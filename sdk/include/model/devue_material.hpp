@@ -2,9 +2,8 @@
 
 #include <string>
 
-namespace devue::plugins {
-    class devue_plugin_material {
-    public:
+namespace devue::sdk {
+    struct devue_material {
         std::string name            = "";
         std::string diffuse_texture = "";
     };
