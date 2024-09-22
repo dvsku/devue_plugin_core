@@ -1,10 +1,9 @@
-#include "model_serial.hpp"
-#include "image_serial.hpp"
+#include <devue_sdk.hpp>
 
 #include <gtest/gtest.h>
 #include <vector>
 
-TEST(serial, scene) {
+TEST(serial, model) {
     devue::sdk::devue_model_col input;
     devue::sdk::devue_model_col output;
 
@@ -43,8 +42,8 @@ TEST(serial, scene) {
         input.models.push_back(model_2);
     }
 
-    devue::sdk::encode_models(input, buffer);
-    devue::sdk::decode_models(output, buffer.data(), (uint64_t)buffer.size());
+    devue::sdk::encode(input, buffer);
+    devue::sdk::decode(output, buffer.data(), (uint64_t)buffer.size());
 
     ASSERT_TRUE(input.models.size() == input.models.size());
 
@@ -98,11 +97,69 @@ TEST(serial, image) {
     input.components = 3;
     input.data       = data;
 
-    devue::sdk::encode_image(input, buffer);
-    devue::sdk::decode_image(output, buffer.data(), (uint64_t)buffer.size());
+    devue::sdk::encode(input, buffer);
+    devue::sdk::decode(output, buffer.data(), (uint64_t)buffer.size());
 
     EXPECT_TRUE(input.width == output.width);
     EXPECT_TRUE(input.height == output.height);
     EXPECT_TRUE(input.components == output.components);
     EXPECT_TRUE(output.data == data);
+}
+
+TEST(serial, ec) {
+    devue::sdk::devue_ec input;
+    devue::sdk::devue_ec output;
+
+    std::vector<uint8_t> buffer;
+
+    input.code    = 16;
+    input.message = "ABCD";
+
+    devue::sdk::encode(input, buffer);
+    devue::sdk::decode(output, buffer.data(), (uint64_t)buffer.size());
+
+    EXPECT_TRUE(input.code == output.code);
+    EXPECT_TRUE(input.message == output.message);
+}
+
+TEST(serial, desc) {
+    devue::sdk::devue_plugin_desc input;
+    devue::sdk::devue_plugin_desc output;
+
+    std::vector<uint8_t> buffer;
+
+    input.name    = "DSADgdfsgs";
+    input.author  = "jhgfnvbn";
+    input.website = "gdsftye";
+    input.version = "iuudhdhgf";
+    
+    input.model_types = {
+        { "gdsfg", "gfdgdfg" },
+        { "itweryo", "pu"}
+    };
+    
+    input.image_types = {
+        { "itweryo", "pu"},
+        { "gdsfg", "gfdgdfg" }
+    };
+
+    devue::sdk::encode(input, buffer);
+    devue::sdk::decode(output, buffer.data(), (uint64_t)buffer.size());
+
+    EXPECT_TRUE(input.name == output.name);
+    EXPECT_TRUE(input.author == output.author);
+    EXPECT_TRUE(input.website == output.website);
+    EXPECT_TRUE(input.version == output.version);
+    ASSERT_TRUE(input.model_types.size() == output.model_types.size());
+    ASSERT_TRUE(input.image_types.size() == output.image_types.size());
+
+    for (size_t i = 0; i < output.model_types.size(); i++) {
+        EXPECT_TRUE(input.model_types[i].name == output.model_types[i].name);
+        EXPECT_TRUE(input.model_types[i].extensions == output.model_types[i].extensions);
+    }
+
+    for (size_t i = 0; i < output.image_types.size(); i++) {
+        EXPECT_TRUE(input.image_types[i].name == output.image_types[i].name);
+        EXPECT_TRUE(input.image_types[i].extensions == output.image_types[i].extensions);
+    }
 }
