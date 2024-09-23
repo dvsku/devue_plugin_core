@@ -2,7 +2,7 @@
 
 #include <devue_sdk/defines.hpp>
 
-#include <devue_sdk/model/devue_model_col.hpp>
+#include <devue_sdk/model/devue_model_pack.hpp>
 #include <devue_sdk/model/devue_model.hpp>
 #include <devue_sdk/model/devue_mesh.hpp>
 #include <devue_sdk/model/devue_material.hpp>

@@ -3,7 +3,7 @@
 
 #include <json/json.hpp>
 
-void devue::sdk::encode(devue_model_col& models, std::vector<uint8_t>& buffer) {
+void devue::sdk::encode(devue_model_pack& models, std::vector<uint8_t>& buffer) {
     nlohmann::ordered_json json;
 
     try {
@@ -75,7 +75,7 @@ void devue::sdk::encode(devue_model_col& models, std::vector<uint8_t>& buffer) {
     }
 }
 
-void devue::sdk::decode(devue_model_col& models, uint8_t* dst, uint64_t size) {
+void devue::sdk::decode(devue_model_pack& models, uint8_t* dst, uint64_t size) {
     nlohmann::ordered_json json;
 
     try {

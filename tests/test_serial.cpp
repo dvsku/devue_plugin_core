@@ -4,8 +4,8 @@
 #include <vector>
 
 TEST(serial, model) {
-    devue::sdk::devue_model_col input;
-    devue::sdk::devue_model_col output;
+    devue::sdk::devue_model_pack input;
+    devue::sdk::devue_model_pack output;
 
     std::vector<uint8_t> buffer;
 

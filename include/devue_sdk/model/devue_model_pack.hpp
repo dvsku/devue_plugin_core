@@ -5,7 +5,7 @@
 #include <vector>
 
 namespace devue::sdk {
-    struct devue_model_col {
+    struct devue_model_pack {
         std::vector<devue_model> models;
     };
 }

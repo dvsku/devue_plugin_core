@@ -2,7 +2,7 @@
 
 #include "devue_sdk/plugin/devue_plugin_interface.hpp"
 #include "devue_sdk/plugin/devue_plugin_desc.hpp"
-#include "devue_sdk/model/devue_model_col.hpp"
+#include "devue_sdk/model/devue_model_pack.hpp"
 #include "devue_sdk/image/devue_image.hpp"
 #include "devue_sdk/misc/devue_ec.hpp"
 #include "devue_sdk/misc/devue_data.hpp"
@@ -21,8 +21,8 @@ namespace devue::sdk {
         devue_plugin_desc m_desc = {};
 
     protected:
-        virtual devue_model_col impl_import_model(const std::filesystem::path& filepath);
-        virtual devue_image     impl_import_image(const std::filesystem::path& filepath);
+        virtual devue_model_pack impl_import_model(const std::filesystem::path& filepath);
+        virtual devue_image      impl_import_image(const std::filesystem::path& filepath);
 
     private:
         using buffer_t = std::vector<uint8_t>;

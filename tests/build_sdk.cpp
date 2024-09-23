@@ -2,7 +2,7 @@
 
 class devue_plugin : public devue::sdk::devue_plugin_base {
 public:
-    devue::sdk::devue_model_col impl_import_model(const std::filesystem::path& filepath) override {
+    devue::sdk::devue_model_pack impl_import_model(const std::filesystem::path& filepath) override {
         return {};
     }
 
