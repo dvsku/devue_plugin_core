@@ -1,20 +1,22 @@
 ﻿INCLUDE(FetchContent)
 
-SET(FETCHCONTENT_QUIET OFF)
-SET(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+SET(FETCHCONTENT_QUIET                OFF)
+SET(FETCHCONTENT_UPDATES_DISCONNECTED  ON)
 
 ###############################################################################
 ## googletest
 
-IF(SDK_TOP_LEVEL AND SDK_TEST)
-	SET(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
+IF(DEVUE_SDK_TOP_LEVEL AND DEVUE_SDK_TEST)
+    IF(DEVUE_SDK_STATIC_CRT)
+        SET(gtest_force_shared_crt OFF)
+    ELSE()
+        SET(gtest_force_shared_crt  ON)
+    ENDIF()
+    
 	FetchContent_Declare(
 		googletest
 		URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
 	)
 
 	FetchContent_MakeAvailable(googletest)
-
-	#SET(GTEST_INCLUDES "${googletest_SOURCE_DIR}/googletest/include" PARENT_SCOPE)
 ENDIF()

@@ -17,12 +17,8 @@
 #include <devue_sdk/misc/devue_ec.hpp>
 #include <devue_sdk/misc/devue_file_type.hpp>
 
-#ifdef DEVUE_SDK
-    #include <devue_sdk/plugin/devue_plugin_base.hpp>
-#endif
+#include <devue_sdk/plugin/devue_plugin_base.hpp>
 
-#ifdef DEVUE_SDK_SERIAL
-    #include <devue_sdk/serial/serial_model.hpp>
-    #include <devue_sdk/serial/serial_image.hpp>
-    #include <devue_sdk/serial/serial_misc.hpp>
-#endif
+#include <devue_sdk/serial/serial_model.hpp>
+#include <devue_sdk/serial/serial_image.hpp>
+#include <devue_sdk/serial/serial_misc.hpp>
