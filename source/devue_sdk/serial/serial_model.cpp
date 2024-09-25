@@ -9,6 +9,7 @@ void devue::sdk::encode(devue_model& model, std::vector<uint8_t>& buffer) {
     try {
         json = nlohmann::ordered_json::object();
 
+        json["name"]      = model.name;
         json["vertices"]  = nlohmann::ordered_json::array();
         json["meshes"]    = nlohmann::ordered_json::array();
         json["materials"] = nlohmann::ordered_json::array();
@@ -69,6 +70,9 @@ void devue::sdk::decode(devue_model& model, uint8_t* dst, uint64_t size) {
 
     try {
         json = nlohmann::ordered_json::from_cbor(dst, dst + size);
+
+        if (json.contains("name") && json["name"].is_string())
+            model.name = json["name"];
 
         if (json.contains("vertices") && json["vertices"].is_array()) {
             for (auto& jvertex : json["vertices"]) {
