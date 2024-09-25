@@ -8,7 +8,7 @@ using namespace devue::sdk;
 ////////////////////////////////////////////////////////////////////////////////
 // PROTECTED
 
-devue_model_pack devue_plugin_base::impl_import_model(const std::filesystem::path& filepath) {
+devue_model devue_plugin_base::impl_import_model(const std::filesystem::path& filepath) {
     throw std::runtime_error("Not implemented");
 }
 
@@ -47,10 +47,10 @@ devue_data devue_plugin_base::get_ec() noexcept {
 
 devue_data devue_plugin_base::import_model(const char* filepath) noexcept {
     try {
-        devue_model_pack models = impl_import_model(filepath);
+        devue_model model = impl_import_model(filepath);
 
         cleanup();
-        encode(models, m_buffer);
+        encode(model, m_buffer);
     }
     catch (const std::exception& e) {
         m_ec.code    = -1;

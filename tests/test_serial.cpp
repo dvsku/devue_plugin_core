@@ -4,84 +4,57 @@
 #include <vector>
 
 TEST(serial, model) {
-    devue::sdk::devue_model_pack input;
-    devue::sdk::devue_model_pack output;
+    devue::sdk::devue_model input;
+    devue::sdk::devue_model output;
 
     std::vector<uint8_t> buffer;
 
-    {
-        devue::sdk::devue_model model_1;
-        model_1.vertices = {
-            { { 0.0f, 0.1f, 0.2f }, { 0.3f, 0.4f, 0.5f }, { 0.6f, 0.7f } },
-            { { 1.0f, 1.1f, 1.2f }, { 1.3f, 1.4f, 1.5f }, { 1.6f, 1.7f } }
-        };
-        model_1.materials = {
-            { "abc", "dfg" },
-            { "123", "456" }
-        };
-        model_1.meshes = {
-            { "abc", 0, { 1, 2, 3, 4, 5, 6 } },
-            { "dfg", 1, { 7, 8, 9, 10, 11, 12 } }
-        };
-
-        devue::sdk::devue_model model_2;
-        model_2.vertices = {
-            { { 1.0f, 1.1f, 1.2f }, { 1.3f, 1.4f, 1.5f }, { 1.6f, 1.7f } },
-            { { 0.0f, 0.1f, 0.2f }, { 0.3f, 0.4f, 0.5f }, { 0.6f, 0.7f } }
-        };
-        model_2.materials = {
-            { "123", "456" },
-            { "abc", "dfg" }
-        };
-        model_2.meshes = {
-            { "dfg", 1, { 7, 8, 9, 10, 11, 12 } },
-            { "abc", 0, { 1, 2, 3, 4, 5, 6 } }
-        };
-
-        input.models.push_back(model_1);
-        input.models.push_back(model_2);
-    }
+    input.vertices = {
+        { { 0.0f, 0.1f, 0.2f }, { 0.3f, 0.4f, 0.5f }, { 0.6f, 0.7f } },
+        { { 1.0f, 1.1f, 1.2f }, { 1.3f, 1.4f, 1.5f }, { 1.6f, 1.7f } }
+    };
+    input.materials = {
+        { "abc", "dfg" },
+        { "123", "456" }
+    };
+    input.meshes = {
+        { "abc", 0, { 1, 2, 3, 4, 5, 6 } },
+        { "dfg", 1, { 7, 8, 9, 10, 11, 12 } }
+    };
 
     devue::sdk::encode(input, buffer);
     devue::sdk::decode(output, buffer.data(), (uint64_t)buffer.size());
 
-    ASSERT_TRUE(input.models.size() == input.models.size());
+    ASSERT_TRUE(input.vertices.size() == output.vertices.size());
+    ASSERT_TRUE(input.meshes.size() == output.meshes.size());
+    ASSERT_TRUE(input.materials.size() == output.materials.size());
 
-    for (size_t i = 0; i < output.models.size(); i++) {
-        auto& imodel = input.models[i];
-        auto& omodel = output.models[i];
+    for (size_t i = 0; i < output.vertices.size(); i++) {
+        auto& ivertex = input.vertices[i];
+        auto& overtex = output.vertices[i];
 
-        ASSERT_TRUE(imodel.vertices.size() == omodel.vertices.size());
-        ASSERT_TRUE(imodel.meshes.size() == omodel.meshes.size());
-        ASSERT_TRUE(imodel.materials.size() == omodel.materials.size());
+        ASSERT_TRUE(ivertex == overtex);
+    }
 
-        for (size_t j = 0; j < omodel.vertices.size(); j++) {
-            auto& ivertex = imodel.vertices[i];
-            auto& overtex = omodel.vertices[i];
+    for (size_t i = 0; i < output.meshes.size(); i++) {
+        auto& imesh = input.meshes[i];
+        auto& omesh = output.meshes[i];
 
-            ASSERT_TRUE(ivertex == overtex);
+        ASSERT_TRUE(imesh.name == omesh.name);
+        ASSERT_TRUE(imesh.material_index == omesh.material_index);
+        ASSERT_TRUE(imesh.indices.size() == omesh.indices.size());
+
+        for (size_t k = 0; k < omesh.indices.size(); k++) {
+            ASSERT_TRUE(imesh.indices[k] == omesh.indices[k]);
         }
+    }
 
-        for (size_t j = 0; j < omodel.meshes.size(); j++) {
-            auto& imesh = imodel.meshes[i];
-            auto& omesh = omodel.meshes[i];
+    for (size_t i = 0; i < output.materials.size(); i++) {
+        auto& imaterial = input.materials[i];
+        auto& omaterial = output.materials[i];
 
-            ASSERT_TRUE(imesh.name == omesh.name);
-            ASSERT_TRUE(imesh.material_index == omesh.material_index);
-            ASSERT_TRUE(imesh.indices.size() == omesh.indices.size());
-
-            for (size_t k = 0; k < omesh.indices.size(); k++) {
-                ASSERT_TRUE(imesh.indices[k] == omesh.indices[k]);
-            }
-        }
-
-        for (size_t j = 0; j < omodel.materials.size(); j++) {
-            auto& imaterial = imodel.materials[i];
-            auto& omaterial = omodel.materials[i];
-
-            ASSERT_TRUE(imaterial.name == omaterial.name);
-            ASSERT_TRUE(imaterial.diffuse_texture == omaterial.diffuse_texture);
-        }
+        ASSERT_TRUE(imaterial.name == omaterial.name);
+        ASSERT_TRUE(imaterial.diffuse_texture == omaterial.diffuse_texture);
     }
 }
 
