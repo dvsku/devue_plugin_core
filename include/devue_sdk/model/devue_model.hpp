@@ -1,8 +1,6 @@
 #pragma once
 
-#include "devue_vertex.hpp"
-#include "devue_mesh.hpp"
-#include "devue_material.hpp"
+#include "devue_sdk/model/devue_mesh.hpp"
 
 #include <string>
 
@@ -10,8 +8,6 @@ namespace devue::sdk {
     struct devue_model {
         std::string name = "";
 
-        std::vector<devue_vertex>   vertices;
-    	std::vector<devue_mesh>     meshes;
-        std::vector<devue_material> materials;
+    	std::vector<devue_mesh> meshes;
     };
 }
