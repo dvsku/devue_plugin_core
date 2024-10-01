@@ -9,52 +9,54 @@ void devue::sdk::encode(devue_model& model, std::vector<uint8_t>& buffer) {
     try {
         json = nlohmann::ordered_json::object();
 
-        json["name"]      = model.name;
-        json["vertices"]  = nlohmann::ordered_json::array();
-        json["meshes"]    = nlohmann::ordered_json::array();
-        json["materials"] = nlohmann::ordered_json::array();
+        json["name"]   = model.name;
+        json["meshes"] = nlohmann::ordered_json::array();
 
-        for (size_t j = 0; j < model.vertices.size(); j++) {
-            json["vertices"][j] = nlohmann::ordered_json::object();
+        for (size_t i = 0; i < model.meshes.size(); i++) {
+            json["meshes"][i] = nlohmann::ordered_json::object();
 
-            auto& vertex  = model.vertices[j];
-            auto& jvertex = json["vertices"][j];
+            auto& mesh  = model.meshes[i];
+            auto& jmesh = json["meshes"][i];
 
-            jvertex["position"]["x"] = vertex.position.x;
-            jvertex["position"]["y"] = vertex.position.y;
-            jvertex["position"]["z"] = vertex.position.z;
+            jmesh["name"]     = mesh.name;
+            jmesh["vertices"] = nlohmann::ordered_json::array();
+            jmesh["indices"]  = nlohmann::ordered_json::array();
 
-            jvertex["normal"]["x"] = vertex.normal.x;
-            jvertex["normal"]["y"] = vertex.normal.y;
-            jvertex["normal"]["z"] = vertex.normal.z;
+            for (size_t j = 0; j < mesh.vertices.size(); j++) {
+                jmesh["vertices"][j] = nlohmann::ordered_json::object();
 
-            jvertex["uv"]["x"] = vertex.uv.x;
-            jvertex["uv"]["y"] = vertex.uv.y;
-        }
+                auto& vertex  = mesh.vertices[j];
+                auto& jvertex = jmesh["vertices"][j];
 
-        for (size_t j = 0; j < model.meshes.size(); j++) {
-            json["meshes"][j] = nlohmann::ordered_json::object();
+                jvertex["position"]["x"] = vertex.position.x;
+                jvertex["position"]["y"] = vertex.position.y;
+                jvertex["position"]["z"] = vertex.position.z;
 
-            auto& mesh  = model.meshes[j];
-            auto& jmesh = json["meshes"][j];
+                jvertex["normal"]["x"] = vertex.normal.x;
+                jvertex["normal"]["y"] = vertex.normal.y;
+                jvertex["normal"]["z"] = vertex.normal.z;
 
-            jmesh["name"]           = mesh.name;
-            jmesh["material_index"] = mesh.material_index;
-            jmesh["indices"]        = nlohmann::ordered_json::array();
-
-            for (size_t k = 0; k < mesh.indices.size(); k++) {
-                jmesh["indices"][k] = mesh.indices[k];
+                jvertex["uv"]["x"] = vertex.uv.x;
+                jvertex["uv"]["y"] = vertex.uv.y;
             }
-        }
 
-        for (size_t j = 0; j < model.materials.size(); j++) {
-            json["materials"][j] = nlohmann::ordered_json::object();
+            for (size_t j = 0; j < mesh.indices.size(); j++) {
+                jmesh["indices"][j] = mesh.indices[j];
+            }
 
-            auto& material  = model.materials[j];
-            auto& jmaterial = json["materials"][j];
+            if (mesh.material) {
+                jmesh["material"] = nlohmann::ordered_json::object();
 
-            jmaterial["name"]            = material.name;
-            jmaterial["diffuse_texture"] = material.diffuse_texture;
+                auto& jmaterial   = jmesh["material"];
+                jmaterial["type"] = mesh.material->get_type();
+                jmaterial["name"] = mesh.material->name;
+
+                if (mesh.material->get_type() == devue_material_type::phong) {
+                    auto material = std::static_pointer_cast<devue_material_phong>(mesh.material);
+                    
+                    jmaterial["color_map"] = material->color_map;
+                }
+            }
         }
 
         nlohmann::ordered_json::to_cbor(json, buffer);
@@ -74,59 +76,56 @@ void devue::sdk::decode(devue_model& model, uint8_t* dst, uint64_t size) {
         if (json.contains("name") && json["name"].is_string())
             model.name = json["name"];
 
-        if (json.contains("vertices") && json["vertices"].is_array()) {
-            for (auto& jvertex : json["vertices"]) {
-                devue_vertex vertex;
-
-                if (jvertex.contains("position") && jvertex["position"].is_object()) {
-                    auto& jposition = jvertex["position"];
-
-                    if (jposition.contains("x") && jposition["x"].is_number())
-                        vertex.position.x = jposition["x"];
-
-                    if (jposition.contains("y") && jposition["y"].is_number())
-                        vertex.position.y = jposition["y"];
-
-                    if (jposition.contains("z") && jposition["z"].is_number())
-                        vertex.position.z = jposition["z"];
-                }
-
-                if (jvertex.contains("normal") && jvertex["normal"].is_object()) {
-                    auto& jnormal = jvertex["normal"];
-
-                    if (jnormal.contains("x") && jnormal["x"].is_number())
-                        vertex.normal.x = jnormal["x"];
-
-                    if (jnormal.contains("y") && jnormal["y"].is_number())
-                        vertex.normal.y = jnormal["y"];
-
-                    if (jnormal.contains("z") && jnormal["z"].is_number())
-                        vertex.normal.z = jnormal["z"];
-                }
-
-                if (jvertex.contains("uv") && jvertex["uv"].is_object()) {
-                    auto& juv = jvertex["uv"];
-
-                    if (juv.contains("x") && juv["x"].is_number())
-                        vertex.uv.x = juv["x"];
-
-                    if (juv.contains("y") && juv["y"].is_number())
-                        vertex.uv.y = juv["y"];
-                }
-
-                model.vertices.push_back(vertex);
-            }
-        }
-
         if (json.contains("meshes") && json["meshes"].is_array()) {
             for (auto& jmesh : json["meshes"]) {
-                devue_mesh mesh;
+                model.meshes.push_back({});
+                devue_mesh& mesh = model.meshes.back();
 
                 if (jmesh.contains("name") && jmesh["name"].is_string())
                     mesh.name = jmesh["name"];
 
-                if (jmesh.contains("material_index") && jmesh["material_index"].is_number())
-                    mesh.material_index = jmesh["material_index"];
+                if (jmesh.contains("vertices") && jmesh["vertices"].is_array()) {
+                    for (auto& jvertex : jmesh["vertices"]) {
+                        mesh.vertices.push_back({});
+                        devue_vertex& vertex = mesh.vertices.back();
+
+                        if (jvertex.contains("position") && jvertex["position"].is_object()) {
+                            auto& jposition = jvertex["position"];
+
+                            if (jposition.contains("x") && jposition["x"].is_number())
+                                vertex.position.x = jposition["x"];
+
+                            if (jposition.contains("y") && jposition["y"].is_number())
+                                vertex.position.y = jposition["y"];
+
+                            if (jposition.contains("z") && jposition["z"].is_number())
+                                vertex.position.z = jposition["z"];
+                        }
+
+                        if (jvertex.contains("normal") && jvertex["normal"].is_object()) {
+                            auto& jnormal = jvertex["normal"];
+
+                            if (jnormal.contains("x") && jnormal["x"].is_number())
+                                vertex.normal.x = jnormal["x"];
+
+                            if (jnormal.contains("y") && jnormal["y"].is_number())
+                                vertex.normal.y = jnormal["y"];
+
+                            if (jnormal.contains("z") && jnormal["z"].is_number())
+                                vertex.normal.z = jnormal["z"];
+                        }
+
+                        if (jvertex.contains("uv") && jvertex["uv"].is_object()) {
+                            auto& juv = jvertex["uv"];
+
+                            if (juv.contains("x") && juv["x"].is_number())
+                                vertex.uv.x = juv["x"];
+
+                            if (juv.contains("y") && juv["y"].is_number())
+                                vertex.uv.y = juv["y"];
+                        }
+                    }
+                }
 
                 if (jmesh.contains("indices") && jmesh["indices"].is_array()) {
                     for (auto& jindex : jmesh["indices"]) {
@@ -136,21 +135,25 @@ void devue::sdk::decode(devue_model& model, uint8_t* dst, uint64_t size) {
                     }
                 }
 
-                model.meshes.push_back(mesh);
-            }
-        }
+                if (jmesh.contains("material") && jmesh["material"].is_object()) {
+                    auto& jmaterial = jmesh["material"];
+                    
+                    if (jmaterial.contains("type")) {
+                        devue_material_type type = jmaterial["type"];
 
-        if (json.contains("materials") && json["materials"].is_array()) {
-            for (auto& jmaterial : json["materials"]) {
-                devue_material material;
+                        if (type == devue_material_type::phong) {
+                            auto material = std::make_shared<devue_material_phong>();
+                            
+                            if (jmaterial.contains("name") && jmaterial["name"].is_string())
+                                material->name = jmaterial["name"];
 
-                if (jmaterial.contains("name") && jmaterial["name"].is_string())
-                    material.name = jmaterial["name"];
+                            if (jmaterial.contains("color_map") && jmaterial["color_map"].is_string())
+                                material->color_map = jmaterial["color_map"];
 
-                if (jmaterial.contains("diffuse_texture") && jmaterial["diffuse_texture"].is_string())
-                    material.diffuse_texture = jmaterial["diffuse_texture"];
-
-                model.materials.push_back(material);
+                            mesh.material = material;
+                        }
+                    }
+                }
             }
         }
     }
