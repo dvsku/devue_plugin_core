@@ -9,52 +9,81 @@ TEST(serial, model) {
 
     std::vector<uint8_t> buffer;
 
-    input.vertices = {
-        { { 0.0f, 0.1f, 0.2f }, { 0.3f, 0.4f, 0.5f }, { 0.6f, 0.7f } },
-        { { 1.0f, 1.1f, 1.2f }, { 1.3f, 1.4f, 1.5f }, { 1.6f, 1.7f } }
-    };
-    input.materials = {
-        { "abc", "dfg" },
-        { "123", "456" }
-    };
-    input.meshes = {
-        { "abc", 0, { 1, 2, 3, 4, 5, 6 } },
-        { "dfg", 1, { 7, 8, 9, 10, 11, 12 } }
-    };
+    input.name = "ABCD";
+    
+    {
+        devue::sdk::devue_mesh mesh;
+        mesh.name = "CDD";
+        mesh.vertices = {
+            { { 0.0f, 0.1f, 0.2f }, { 0.3f, 0.4f, 0.5f }, { 0.6f, 0.7f } },
+            { { 1.0f, 1.1f, 1.2f }, { 1.3f, 1.4f, 1.5f }, { 1.6f, 1.7f } }
+        };
+        mesh.indices = { 1, 2, 3, 4, 5, 6 };
+        
+        auto material = std::make_shared<devue::sdk::devue_material_phong>();
+        material->name      = "AAA";
+        material->color_map = "BBB";
+        
+        mesh.material = material;
+
+        input.meshes.push_back(mesh);
+    }
+
+    {
+        devue::sdk::devue_mesh mesh;
+        mesh.name = "DDC";
+        mesh.vertices = {
+            { { 1.0f, 1.1f, 1.2f }, { 1.3f, 1.4f, 1.5f }, { 1.6f, 1.7f } },
+            { { 0.0f, 0.1f, 0.2f }, { 0.3f, 0.4f, 0.5f }, { 0.6f, 0.7f } }
+        };
+        mesh.indices = { 1, 2, 3, 4, 5, 6 };
+
+        input.meshes.push_back(mesh);
+    }
 
     devue::sdk::encode(input, buffer);
     devue::sdk::decode(output, buffer.data(), (uint64_t)buffer.size());
 
-    ASSERT_TRUE(input.vertices.size() == output.vertices.size());
+    ASSERT_TRUE(input.name == output.name);
     ASSERT_TRUE(input.meshes.size() == output.meshes.size());
-    ASSERT_TRUE(input.materials.size() == output.materials.size());
-
-    for (size_t i = 0; i < output.vertices.size(); i++) {
-        auto& ivertex = input.vertices[i];
-        auto& overtex = output.vertices[i];
-
-        ASSERT_TRUE(ivertex == overtex);
-    }
 
     for (size_t i = 0; i < output.meshes.size(); i++) {
         auto& imesh = input.meshes[i];
         auto& omesh = output.meshes[i];
 
         ASSERT_TRUE(imesh.name == omesh.name);
-        ASSERT_TRUE(imesh.material_index == omesh.material_index);
+        ASSERT_TRUE(imesh.vertices.size() == omesh.vertices.size());
+
+        for (size_t j = 0; j < omesh.vertices.size(); j++) {
+            auto& ivertex = imesh.vertices[i];
+            auto& overtex = omesh.vertices[i];
+
+            ASSERT_TRUE(ivertex.position == overtex.position);
+            ASSERT_TRUE(ivertex.normal == overtex.normal);
+            ASSERT_TRUE(ivertex.uv == overtex.uv);
+        }
+
         ASSERT_TRUE(imesh.indices.size() == omesh.indices.size());
 
-        for (size_t k = 0; k < omesh.indices.size(); k++) {
-            ASSERT_TRUE(imesh.indices[k] == omesh.indices[k]);
+        for (size_t j = 0; j < omesh.indices.size(); j++) {
+            ASSERT_TRUE(imesh.indices[j] == omesh.indices[j]);
         }
-    }
 
-    for (size_t i = 0; i < output.materials.size(); i++) {
-        auto& imaterial = input.materials[i];
-        auto& omaterial = output.materials[i];
+        if (!omesh.material)
+            ASSERT_FALSE(imesh.material);
 
-        ASSERT_TRUE(imaterial.name == omaterial.name);
-        ASSERT_TRUE(imaterial.diffuse_texture == omaterial.diffuse_texture);
+        if (imesh.material && omesh.material) {
+            ASSERT_TRUE(imesh.material->get_type() == omesh.material->get_type());
+
+            if (omesh.material->get_type() == devue::sdk::devue_material_type::phong) {
+                auto imaterial = std::static_pointer_cast<devue::sdk::devue_material_phong>(imesh.material);
+                auto omaterial = std::static_pointer_cast<devue::sdk::devue_material_phong>(omesh.material);
+
+                ASSERT_TRUE(imaterial->name == omaterial->name);
+                ASSERT_TRUE(imaterial->color_map == omaterial->color_map);
+            }
+        }
+        
     }
 }
 
