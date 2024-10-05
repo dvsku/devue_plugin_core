@@ -7,8 +7,8 @@
 #endif
 
 constexpr uint16_t DEVUE_SDK_VERSION_YEAR  = 2024;
-constexpr uint16_t DEVUE_SDK_VERSION_MONTH = 9;
-constexpr uint16_t DEVUE_SDK_VERSION_DAY   = 23;
+constexpr uint16_t DEVUE_SDK_VERSION_MONTH = 10;
+constexpr uint16_t DEVUE_SDK_VERSION_DAY   = 5;
 constexpr uint16_t DEVUE_SDK_VERSION_REV   = 0;
 
 #define DEVUE_SDK_VERSION_PACKED                  \
