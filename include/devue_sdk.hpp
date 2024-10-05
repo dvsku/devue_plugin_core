@@ -8,6 +8,7 @@
 
 #include <devue_sdk/model/material/devue_material.hpp>
 #include <devue_sdk/model/material/devue_material_phong.hpp>
+#include <devue_sdk/model/material/devue_material_blinn_phong.hpp>
 
 #include <devue_sdk/image/devue_image.hpp>
 
